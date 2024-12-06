@@ -34,14 +34,14 @@ Helpmeai is a Chrome extension designed to enhance your daily interactions with 
 
 ## Files Structure
 
-- `src/App.jsx`: Main React component for the extension's popup interface.
+- `src/App.jsx`: Main Preact component for the extension's popup interface.
 - `public/content.js`: Content script that interacts with web pages.
 - `public/background.js`: Background script that handles messages and storage.
 - `public/manifest.json`: Configuration file for the Chrome extension.
 
 ## Dependencies
 
-- React
+- Preact
 - Chrome APIs
 
 ## Contributing
