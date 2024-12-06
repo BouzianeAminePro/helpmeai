@@ -8,7 +8,6 @@ import { ClipboardCopyIcon } from "./ui/svgs/ClipboardCopyIcon";
 import { EraserIcon } from "./ui/svgs/EraserIcon";
 
 export default function App() {
-
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
   const [promptType, setPromptType] = useState(null);
@@ -82,6 +81,7 @@ export default function App() {
     await navigator.clipboard.writeText(response);
     chrome.runtime.sendMessage({ action: ACTIONS.COPY, payload: response });
     setResponse("")
+    window.close()
   }, [response]);
 
   const clearMessage = useCallback(async () => {
@@ -97,18 +97,20 @@ export default function App() {
   }, []);
 
 
-  const isEmptyMessage = useMemo(() => !message.trim().length, [message])
+  const isEmptyMessage = useMemo(() => !message?.trim().length, [message])
+  const isEmptyResponse = useMemo(() => !response?.trim().length, [response])
 
   return (
     <div className="mx-auto overflow-y-scroll p-6">
       <h1 className="text-3xl mb-4">helpmeai Chrome Extension</h1>
+
       <div className="flex flex-col gap-y-3 items-center">
         {
-          !!message.length &&
+          !isEmptyMessage &&
           <p className="text-base leading-6 mb-4 bg-slate-600 p-2.5 rounded-2xl self-end">{message}</p>
         }
         {
-          !!response.length &&
+          !isEmptyResponse &&
           <div className="flex flex-row gap-x-2">
             <img
               src="/images/logo.png"
@@ -120,6 +122,7 @@ export default function App() {
           </div>
         }
       </div>
+
       <div className="flex flex-col gap-2">
         <div className="flex gap-4 justify-evenly">
           <span class="relative flex">
@@ -176,6 +179,5 @@ export default function App() {
         </div>
       </div>
     </div>
-    // </div>
   );
 }
