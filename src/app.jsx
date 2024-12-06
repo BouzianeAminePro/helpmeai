@@ -1,0 +1,181 @@
+import { useCallback, useState, useMemo } from "preact/hooks";
+
+import { generatePrompt, PROMPTS } from "./tools/prompt";
+import { ACTIONS } from "./tools/enums";
+import { HobbyKnifeIcon } from "./ui/svgs/HobbyKnifeIcon";
+import { MagicWandIcon } from "./ui/svgs/MagicWandIcon";
+import { ClipboardCopyIcon } from "./ui/svgs/ClipboardCopyIcon";
+import { EraserIcon } from "./ui/svgs/EraserIcon";
+
+export default function App() {
+
+  const [message, setMessage] = useState("");
+  const [response, setResponse] = useState("");
+  const [promptType, setPromptType] = useState(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [bodyReader, setBodyReader] = useState();
+
+  chrome.storage.sync.get('value', result => {
+    if (chrome.runtime.lastError) {
+      console.error('Error retrieving data:', chrome.runtime.lastError);
+      return;
+    }
+
+    setMessage(result?.value);
+  })
+
+  const generate = useCallback(async (promptType) => {
+    setResponse("");
+
+    try {
+      setIsRunning(true);
+      setPromptType(promptType)
+
+      const response = await fetch(`http://localhost:11434/api/generate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "llama3.2",
+          prompt: generatePrompt(message, promptType),
+          stream: true,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const reader = response.body.getReader();
+      setBodyReader(reader);
+
+      const decoder = new TextDecoder();
+      let done = false;
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading ?? true;
+        const chunkValue = decoder.decode(value, { stream: true });
+        try {
+          if (chunkValue === "") {
+            done = true;
+            continue;
+          }
+          const parsedValue = JSON.parse(chunkValue === "" ? null : chunkValue);
+          setResponse((prev) => prev + (parsedValue?.response ?? ""));
+        } catch (parseError) {
+          console.error("Error parsing JSON:", parseError);
+          console.error("Received chunk:", chunkValue);
+        }
+      }
+
+    } catch (error) {
+      console.error("Error fetching the streaming response:", error);
+    } finally {
+      setIsRunning(false);
+      setPromptType(null);
+    }
+  }, [message]);
+
+  const copyToClipboard = useCallback(async () => {
+    await navigator.clipboard.writeText(response);
+    chrome.runtime.sendMessage({ action: ACTIONS.COPY, payload: response });
+    setResponse("")
+  }, [response]);
+
+  const clearMessage = useCallback(async () => {
+    await chrome.storage.sync.set({
+      value: ""
+    });
+    setMessage('')
+  }, [])
+
+  const clearAll = useCallback(async () => {
+    setResponse("");
+    clearMessage();
+  }, []);
+
+
+  const isEmptyMessage = useMemo(() => !message.trim().length, [message])
+
+  return (
+    <div className="mx-auto overflow-y-scroll p-6">
+      <h1 className="text-3xl mb-4">helpmeai Chrome Extension</h1>
+      <div className="flex flex-col gap-y-3 items-center">
+        {
+          !!message.length &&
+          <p className="text-base leading-6 mb-4 bg-slate-600 p-2.5 rounded-2xl self-end">{message}</p>
+        }
+        {
+          !!response.length &&
+          <div className="flex flex-row gap-x-2">
+            <img
+              src="/images/logo.png"
+              alt="logo"
+              priority={false}
+              className="w-[40px] h-[40px]"
+            />
+            <p className="text-base leading-6 mb-4 overflow-y-scroll h-max-[200px]">{response}</p>
+          </div>
+        }
+      </div>
+      <div className="flex flex-col gap-2">
+        <div className="flex gap-4 justify-evenly">
+          <span class="relative flex">
+            <button
+              onClick={() => generate(PROMPTS.CORRECT)}
+              disabled={isRunning || isEmptyMessage}
+              className={`px-4 py-2 text-black font-semibold w-fit rounded-lg shadow-md transition-colors duration-200 ${isRunning || isEmptyMessage ? 'bg-gray-300' : 'bg-white hover:bg-gray-100'}`}
+            >
+              <HobbyKnifeIcon />
+              {
+                isRunning &&
+                promptType === PROMPTS.CORRECT &&
+                <span class="flex absolute h-3 w-3 top-0 right-0 -mt-1 -mr-1">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-500 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-500"></span>
+                </span>
+              }
+            </button>
+          </span>
+          <span class="relative flex">
+            <button
+              onClick={() => generate(PROMPTS.PROMPT_IT)}
+              disabled={isRunning || isEmptyMessage}
+              className={`px-4 py-2 text-black font-semibold w-fit rounded-lg shadow-md transition-colors duration-200 ${isRunning || isEmptyMessage ? 'bg-gray-300' : 'bg-white hover:bg-gray-100'}`}
+            >
+              <MagicWandIcon />
+              {
+                isRunning &&
+                promptType === PROMPTS.PROMPT_IT &&
+                <span class="flex absolute h-3 w-3 top-0 right-0 -mt-1 -mr-1">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-500 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-500"></span>
+                </span>
+              }
+            </button>
+          </span>
+
+          <button
+            onClick={copyToClipboard}
+            disabled={isRunning || isEmptyMessage}
+            className={`px-4 py-2 text-black font-semibold w-fit rounded-lg shadow-md transition-colors duration-200 ${isRunning || isEmptyMessage ? 'bg-gray-300' : 'bg-white hover:bg-gray-100'}`}
+          >
+            <ClipboardCopyIcon />
+          </button>
+
+          <button
+            onClick={clearAll}
+            disabled={isRunning || isEmptyMessage}
+            className={`px-4 py-2 text-black font-semibold w-fit rounded-lg shadow-md transition-colors duration-200 ${isRunning || isEmptyMessage ? 'bg-gray-300' : 'bg-white hover:bg-gray-100'}`}
+          >
+            <EraserIcon />
+          </button>
+
+        </div>
+      </div>
+    </div>
+    // </div>
+  );
+}
