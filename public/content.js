@@ -20,13 +20,21 @@ const isColorCloseToWhite = (color) => {
 document.addEventListener("focusin", (event) => {
     const target = event.target;
 
-    if (!(target.isContentEditable || target.getAttribute("role") === "textbox" || target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
+    if (!(
+        target.isContentEditable ||
+        target.getAttribute("role") === "textbox" ||
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA"
+    )) {
+        return;
+    }
+
+    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const parentBgColor = getComputedStyle(target).backgroundColor;
 
     let button = document.querySelector(`#${BTN_ID}`)
 
-    if (document.querySelector(`#${BTN_ID}`)) {
-        const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-        const parentBgColor = getComputedStyle(target).backgroundColor;
+    if (button) {
         button.style.filter = (darkModeQuery.matches || isColorCloseToBlack(parentBgColor)) ? "invert(.4)" : (isColorCloseToWhite(parentBgColor) ? "invert(.7)" : button.style.filter);
         return;
     }
@@ -46,9 +54,6 @@ document.addEventListener("focusin", (event) => {
     image.alt = 'Action';
     image.style.width = '40px';
     image.style.height = '40px';
-
-    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const parentBgColor = getComputedStyle(target).backgroundColor;
 
     button.style.filter = (darkModeQuery.matches || isColorCloseToBlack(parentBgColor)) ? "invert(.4)" : (isColorCloseToWhite(parentBgColor) ? "invert(.7)" : button.style.filter);
 

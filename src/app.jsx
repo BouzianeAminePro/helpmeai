@@ -2,10 +2,13 @@ import { useCallback, useState, useMemo } from "preact/hooks";
 
 import { generatePrompt, PROMPTS } from "./tools/prompt";
 import { ACTIONS } from "./tools/enums";
-import { HobbyKnifeIcon } from "./ui/svgs/HobbyKnifeIcon";
-import { MagicWandIcon } from "./ui/svgs/MagicWandIcon";
-import { ClipboardCopyIcon } from "./ui/svgs/ClipboardCopyIcon";
-import { EraserIcon } from "./ui/svgs/EraserIcon";
+
+import HobbyKnifeIcon from "./ui/svgs/HobbyKnifeIcon";
+import MagicWandIcon from "./ui/svgs/MagicWandIcon";
+import ClipboardCopyIcon from "./ui/svgs/ClipboardCopyIcon";
+import EraserIcon from "./ui/svgs/EraserIcon";
+import CircleBackSlash from "./ui/svgs/CircleBackSlash";
+import Button from "./ui/button";
 
 export default function App() {
   const [message, setMessage] = useState("");
@@ -111,7 +114,7 @@ export default function App() {
         }
         {
           !isEmptyResponse &&
-          <div className="flex flex-row gap-x-2">
+          <div className="flex flex-row gap-x-2 items-center">
             <img
               src="/images/logo.png"
               alt="logo"
@@ -125,56 +128,46 @@ export default function App() {
 
       <div className="flex flex-col gap-2">
         <div className="flex gap-4 justify-evenly">
-          <span class="relative flex">
-            <button
-              onClick={() => generate(PROMPTS.CORRECT)}
-              disabled={isRunning || isEmptyMessage}
-              className={`px-4 py-2 text-black font-semibold w-fit rounded-lg shadow-md transition-colors duration-200 ${isRunning || isEmptyMessage ? 'bg-gray-300' : 'bg-white hover:bg-gray-100'}`}
-            >
-              <HobbyKnifeIcon />
-              {
-                isRunning &&
-                promptType === PROMPTS.CORRECT &&
-                <span class="flex absolute h-3 w-3 top-0 right-0 -mt-1 -mr-1">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-500 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-500"></span>
-                </span>
-              }
-            </button>
-          </span>
-          <span class="relative flex">
-            <button
-              onClick={() => generate(PROMPTS.PROMPT_IT)}
-              disabled={isRunning || isEmptyMessage}
-              className={`px-4 py-2 text-black font-semibold w-fit rounded-lg shadow-md transition-colors duration-200 ${isRunning || isEmptyMessage ? 'bg-gray-300' : 'bg-white hover:bg-gray-100'}`}
-            >
-              <MagicWandIcon />
-              {
-                isRunning &&
-                promptType === PROMPTS.PROMPT_IT &&
-                <span class="flex absolute h-3 w-3 top-0 right-0 -mt-1 -mr-1">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-500 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-3 w-3 bg-gray-500"></span>
-                </span>
-              }
-            </button>
-          </span>
+          <Button
+            onClick={() =>
+              isRunning &&
+                promptType === PROMPTS.CORRECT ?
+                bodyReader?.cancel() :
+                generate(PROMPTS.CORRECT)
+            }
+            disabled={(isRunning && promptType !== PROMPTS.CORRECT) || isEmptyMessage}
+            fallback={<CircleBackSlash />}
+            isRunning={isRunning && promptType === PROMPTS.CORRECT}
+          >
+            <HobbyKnifeIcon />
+          </Button>
 
-          <button
+          <Button
+            onClick={() =>
+              isRunning &&
+                promptType === PROMPTS.PROMPT_IT ?
+                bodyReader?.cancel() :
+                generate(PROMPTS.PROMPT_IT)}
+            disabled={(isRunning && promptType !== PROMPTS.PROMPT_IT) || isEmptyMessage}
+            fallback={<CircleBackSlash />}
+            isRunning={isRunning && promptType === PROMPTS.PROMPT_IT}
+          >
+            <MagicWandIcon />
+          </Button>
+
+          <Button
             onClick={copyToClipboard}
             disabled={isRunning || isEmptyMessage}
-            className={`px-4 py-2 text-black font-semibold w-fit rounded-lg shadow-md transition-colors duration-200 ${isRunning || isEmptyMessage ? 'bg-gray-300' : 'bg-white hover:bg-gray-100'}`}
           >
             <ClipboardCopyIcon />
-          </button>
+          </Button>
 
-          <button
+          <Button
             onClick={clearAll}
             disabled={isRunning || isEmptyMessage}
-            className={`px-4 py-2 text-black font-semibold w-fit rounded-lg shadow-md transition-colors duration-200 ${isRunning || isEmptyMessage ? 'bg-gray-300' : 'bg-white hover:bg-gray-100'}`}
           >
             <EraserIcon />
-          </button>
+          </Button>
 
         </div>
       </div>
