@@ -100,18 +100,24 @@ export default function App() {
     clearMessage();
   }, []);
 
-
   const isEmptyMessage = useMemo(() => !message?.trim().length, [message])
   const isEmptyResponse = useMemo(() => !response?.trim().length, [response])
 
   return (
-    <div className="mx-auto overflow-y-scroll p-6">
-      <h1 className="text-3xl mb-4">helpmeai Chrome Extension</h1>
+    <div className="h-[100%] overflow-y-scroll py-2 px-5">
+      <div className="flex flex-row h-[100%] items-center">
+        <img
+          src="/images/logo.png"
+          alt="logo"
+          className="w-[60px] h-[60px] dark:invert"
+        />
+        <h1 className="text-base">helpmeai</h1>
+      </div>
 
       <div className="flex flex-col gap-y-3 items-center">
         {
           !isEmptyMessage &&
-          <p className="text-base leading-6 mb-4 bg-slate-600 p-2.5 rounded-2xl self-end">{message}</p>
+          <p className="text-base leading-6 mb-4 bg-slate-600 p-2.5 rounded-2xl self-end text-white">{message}</p>
         }
         {
           !isEmptyResponse &&
@@ -119,10 +125,9 @@ export default function App() {
             <img
               src="/images/logo.png"
               alt="logo"
-              priority={false}
-              className="w-[40px] h-[40px]"
+              className="w-[40px] h-[40px] dark:invert"
             />
-            <p className="text-base leading-6 mb-4 overflow-y-scroll h-max-[200px]">{response}</p>
+            <p className="text-base leading-6 mb-4 overflow-y-scroll h-max-[200px] dark:text-white">{response}</p>
           </div>
         }
       </div>

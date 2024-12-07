@@ -23,19 +23,22 @@ document.addEventListener("focusin", (event) => {
     if (!(
         target.isContentEditable ||
         target.getAttribute("role") === "textbox" ||
+        target.getAttribute("role") === "input" ||
         target.tagName === "INPUT" ||
         target.tagName === "TEXTAREA"
     )) {
         return;
     }
 
-    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const parentBgColor = getComputedStyle(target).backgroundColor;
 
     let button = document.querySelector(`#${BTN_ID}`)
 
     if (button) {
-        button.style.filter = (darkModeQuery.matches || isColorCloseToBlack(parentBgColor)) ? "invert(.4)" : (isColorCloseToWhite(parentBgColor) ? "invert(.7)" : button.style.filter);
+        const img = button.querySelector('img');
+        if (img) {
+            img.style.filter = isColorCloseToBlack(parentBgColor) ? "invert(1)" : "invert(0)";
+        }
         return;
     }
 
@@ -54,8 +57,7 @@ document.addEventListener("focusin", (event) => {
     image.alt = 'Action';
     image.style.width = '40px';
     image.style.height = '40px';
-
-    button.style.filter = (darkModeQuery.matches || isColorCloseToBlack(parentBgColor)) ? "invert(.4)" : (isColorCloseToWhite(parentBgColor) ? "invert(.7)" : button.style.filter);
+    image.style.filter = isColorCloseToBlack(parentBgColor) ? "invert(1)" : "invert(0)";
 
     button.appendChild(image);
 
@@ -68,8 +70,8 @@ document.addEventListener("focusin", (event) => {
     });
 
     const rect = target.getBoundingClientRect();
-    button.style.top = `${rect.top + window.scrollY}px`;
-    button.style.left = `${rect.right + 10 + window.scrollX}px`;
+    button.style.top = `${rect.top + window.scrollY - 40}px`;
+    button.style.left = `${rect.right + 5 + window.scrollX}px`;
 
     document.body.appendChild(button);
 
@@ -87,4 +89,11 @@ document.addEventListener("focusin", (event) => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        const img = button.querySelector('img');
+        if (img) {
+            img.style.filter = isColorCloseToBlack(parentBgColor) ? "invert(1)" : "invert(0)";
+        }
+    });
 });
