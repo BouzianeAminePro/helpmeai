@@ -9,6 +9,7 @@ import ClipboardCopyIcon from "./ui/svgs/ClipboardCopyIcon";
 import EraserIcon from "./ui/svgs/EraserIcon";
 import CircleBackSlash from "./ui/svgs/CircleBackSlash";
 import Button from "./ui/button";
+import Tooltip from "./ui/tooltip";
 
 export default function App() {
   const [message, setMessage] = useState("");
@@ -128,46 +129,54 @@ export default function App() {
 
       <div className="flex flex-col gap-2">
         <div className="flex gap-4 justify-evenly">
-          <Button
-            onClick={() =>
-              isRunning &&
-                promptType === PROMPTS.CORRECT ?
-                bodyReader?.cancel() :
-                generate(PROMPTS.CORRECT)
-            }
-            disabled={(isRunning && promptType !== PROMPTS.CORRECT) || isEmptyMessage}
-            fallback={<CircleBackSlash />}
-            isRunning={isRunning && promptType === PROMPTS.CORRECT}
-          >
-            <HobbyKnifeIcon />
-          </Button>
+          <Tooltip text="Correct">
+            <Button
+              onClick={() =>
+                isRunning &&
+                  promptType === PROMPTS.CORRECT ?
+                  bodyReader?.cancel() :
+                  generate(PROMPTS.CORRECT)
+              }
+              disabled={(isRunning && promptType !== PROMPTS.CORRECT) || isEmptyMessage}
+              fallback={<CircleBackSlash />}
+              isRunning={isRunning && promptType === PROMPTS.CORRECT}
+            >
+              <HobbyKnifeIcon />
+            </Button>
+          </Tooltip>
 
-          <Button
-            onClick={() =>
-              isRunning &&
-                promptType === PROMPTS.PROMPT_IT ?
-                bodyReader?.cancel() :
-                generate(PROMPTS.PROMPT_IT)}
-            disabled={(isRunning && promptType !== PROMPTS.PROMPT_IT) || isEmptyMessage}
-            fallback={<CircleBackSlash />}
-            isRunning={isRunning && promptType === PROMPTS.PROMPT_IT}
-          >
-            <MagicWandIcon />
-          </Button>
+          <Tooltip text="Promptify">
+            <Button
+              onClick={() =>
+                isRunning &&
+                  promptType === PROMPTS.PROMPT_IT ?
+                  bodyReader?.cancel() :
+                  generate(PROMPTS.PROMPT_IT)}
+              disabled={(isRunning && promptType !== PROMPTS.PROMPT_IT) || isEmptyMessage}
+              fallback={<CircleBackSlash />}
+              isRunning={isRunning && promptType === PROMPTS.PROMPT_IT}
+            >
+              <MagicWandIcon />
+            </Button>
+          </Tooltip>
 
-          <Button
-            onClick={copyToClipboard}
-            disabled={isRunning || isEmptyMessage}
-          >
-            <ClipboardCopyIcon />
-          </Button>
+          <Tooltip text="Copy/insert">
+            <Button
+              onClick={copyToClipboard}
+              disabled={isRunning || isEmptyMessage}
+            >
+              <ClipboardCopyIcon />
+            </Button>
+          </Tooltip>
 
-          <Button
-            onClick={clearAll}
-            disabled={isRunning || isEmptyMessage}
-          >
-            <EraserIcon />
-          </Button>
+          <Tooltip text="Clear">
+            <Button
+              onClick={clearAll}
+              disabled={isRunning || isEmptyMessage}
+            >
+              <EraserIcon />
+            </Button>
+          </Tooltip>
 
         </div>
       </div>
