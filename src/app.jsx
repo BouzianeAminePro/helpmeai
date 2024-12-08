@@ -136,10 +136,10 @@ export default function App() {
         <div className="flex gap-4 justify-evenly">
           <Tooltip text="Correct">
             <Button
-              onClick={() =>
+              onClick={async () =>
                 isRunning &&
                   promptType === PROMPTS.CORRECT ?
-                  bodyReader?.cancel() :
+                  await bodyReader?.cancel() :
                   generate(PROMPTS.CORRECT)
               }
               disabled={(isRunning && promptType !== PROMPTS.CORRECT) || isEmptyMessage}
@@ -152,11 +152,12 @@ export default function App() {
 
           <Tooltip text="Promptify">
             <Button
-              onClick={() =>
+              onClick={async () =>
                 isRunning &&
                   promptType === PROMPTS.PROMPT_IT ?
-                  bodyReader?.cancel() :
-                  generate(PROMPTS.PROMPT_IT)}
+                  await bodyReader?.cancel() :
+                  generate(PROMPTS.PROMPT_IT)
+              }
               disabled={(isRunning && promptType !== PROMPTS.PROMPT_IT) || isEmptyMessage}
               fallback={<CircleBackSlash />}
               isRunning={isRunning && promptType === PROMPTS.PROMPT_IT}
