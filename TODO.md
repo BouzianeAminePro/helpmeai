@@ -5,6 +5,9 @@
 - [x] See why in gmail doens't work
 - [x] optimize where to add the button, sometimes it overlapse cta buttons or not even in the correct place
 - [x] Update filter of image on theme or background (dark/light). 
+- [x] Store user input in sync data storage to ensure persistence even after closing the popup
 - [] make a flag to disable the extension
-- [] Store user input in sync data storage to ensure persistence even after closing the popup
 - [] Fix the extension icon button
+
+to present featurs in futur sites video autoplay
+![alt text](image.png)
