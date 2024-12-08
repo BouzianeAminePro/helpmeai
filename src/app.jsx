@@ -117,7 +117,7 @@ export default function App() {
       <div className="flex flex-col gap-y-3 items-center">
         {
           !isEmptyMessage &&
-          <p className="text-base leading-6 mb-4 bg-slate-600 p-2.5 rounded-2xl self-end text-white">{message}</p>
+          <p className="text-base leading-6 mb-4 bg-slate-600 p-2.5 rounded-2xl self-end dark:text-white">{message}</p>
         }
         {
           !isEmptyResponse &&
