@@ -1,6 +1,7 @@
 const ACTIONS = {
     LISTEN: 'LISTEN',
     COPY: 'COPY',
+    RESPONSE: 'RESPONSE',
 };
 
 const BTN_ID = "action-helpmeai";
@@ -76,9 +77,9 @@ document.addEventListener("focusin", (event) => {
     document.body.appendChild(button);
 
     chrome.storage.sync.onChanged.addListener((result) => {
-        if (!result?.copy?.newValue) return;
+        if (!result?.copy?.newValue) return result;
         target.innerText = result.copy.newValue
-        chrome.runtime.sendMessage({ action: ACTIONS.COPY, payload: undefined });
+        chrome.runtime.sendMessage({ action: ACTIONS.COPY });
     });
 
     const handleClickOutside = (event) => {

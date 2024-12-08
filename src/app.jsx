@@ -1,7 +1,8 @@
-import { useCallback, useState, useMemo } from "preact/hooks";
+import { useCallback, useState, useMemo, useEffect } from "preact/hooks";
 
 import { generatePrompt } from "./tools/prompt";
 import { ACTIONS, PROMPTS } from "./tools/enums";
+import { getFromStorage, setInStorage, parseResponseChunk } from "./tools/utils";
 
 import HobbyKnifeIcon from "./ui/svgs/HobbyKnifeIcon";
 import MagicWandIcon from "./ui/svgs/MagicWandIcon";
@@ -9,7 +10,6 @@ import ClipboardCopyIcon from "./ui/svgs/ClipboardCopyIcon";
 import EraserIcon from "./ui/svgs/EraserIcon";
 import CircleBackSlash from "./ui/svgs/CircleBackSlash";
 import Button from "./ui/button";
-import Tooltip from "./ui/tooltip";
 
 export default function App() {
   const [message, setMessage] = useState("");
@@ -18,17 +18,14 @@ export default function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [bodyReader, setBodyReader] = useState();
 
-  chrome.storage.sync.get('value', result => {
-    if (chrome.runtime.lastError) {
-      console.error('Error retrieving data:', chrome.runtime.lastError);
-      return;
-    }
-
-    setMessage(result?.value);
-  })
+  useEffect(() => {
+    getFromStorage('value', result => setMessage(result?.value))
+    getFromStorage('response', result => setResponse(result?.response))
+  }, [])
 
   const generate = useCallback(async (promptType) => {
-    setResponse("");
+    let textResponse = "";
+    await setInStorage('response', textResponse);
 
     try {
       setIsRunning(true);
@@ -65,14 +62,15 @@ export default function App() {
             done = true;
             continue;
           }
-          const parsedValue = JSON.parse(chunkValue === "" ? null : chunkValue);
-          setResponse((prev) => prev + (parsedValue?.response ?? ""));
+          const parsedValue = parseResponseChunk(chunkValue);
+          textResponse += parsedValue?.response ?? "";
+
+          await setInStorage('response', textResponse, (result) => setResponse(textResponse));
         } catch (parseError) {
           console.error("Error parsing JSON:", parseError);
           console.error("Received chunk:", chunkValue);
         }
       }
-
     } catch (error) {
       console.error("Error fetching the streaming response:", error);
     } finally {
@@ -134,55 +132,51 @@ export default function App() {
 
       <div className="flex flex-col gap-2">
         <div className="flex gap-4 justify-evenly">
-          <Tooltip text="Correct">
-            <Button
-              onClick={async () =>
-                isRunning &&
-                  promptType === PROMPTS.CORRECT ?
-                  await bodyReader?.cancel() :
-                  await generate(PROMPTS.CORRECT)
-              }
-              disabled={(isRunning && promptType !== PROMPTS.CORRECT) || isEmptyMessage}
-              fallback={<CircleBackSlash />}
-              isRunning={isRunning && promptType === PROMPTS.CORRECT}
-            >
-              <HobbyKnifeIcon />
-            </Button>
-          </Tooltip>
+          <Button
+            onClick={async () =>
+              isRunning &&
+                promptType === PROMPTS.CORRECT ?
+                await bodyReader?.cancel() :
+                await generate(PROMPTS.CORRECT)
+            }
+            disabled={(isRunning && promptType !== PROMPTS.CORRECT) || isEmptyMessage}
+            fallback={<CircleBackSlash />}
+            isRunning={isRunning && promptType === PROMPTS.CORRECT}
+            tooltip="Correct"
+          >
+            <HobbyKnifeIcon />
+          </Button>
 
-          <Tooltip text="Promptify">
-            <Button
-              onClick={async () =>
-                isRunning &&
-                  promptType === PROMPTS.PROMPT_IT ?
-                  await bodyReader?.cancel() :
-                  await generate(PROMPTS.PROMPT_IT)
-              }
-              disabled={(isRunning && promptType !== PROMPTS.PROMPT_IT) || isEmptyMessage}
-              fallback={<CircleBackSlash />}
-              isRunning={isRunning && promptType === PROMPTS.PROMPT_IT}
-            >
-              <MagicWandIcon />
-            </Button>
-          </Tooltip>
+          <Button
+            onClick={async () =>
+              isRunning &&
+                promptType === PROMPTS.PROMPT_IT ?
+                await bodyReader?.cancel() :
+                await generate(PROMPTS.PROMPT_IT)
+            }
+            disabled={(isRunning && promptType !== PROMPTS.PROMPT_IT) || isEmptyMessage}
+            fallback={<CircleBackSlash />}
+            isRunning={isRunning && promptType === PROMPTS.PROMPT_IT}
+            tooltip="Promptify"
+          >
+            <MagicWandIcon />
+          </Button>
 
-          <Tooltip text="Copy/insert">
-            <Button
-              onClick={copyToClipboard}
-              disabled={isRunning || isEmptyMessage}
-            >
-              <ClipboardCopyIcon />
-            </Button>
-          </Tooltip>
+          <Button
+            onClick={copyToClipboard}
+            disabled={isRunning || isEmptyMessage}
+            tooltip="Copy/Insert"
+          >
+            <ClipboardCopyIcon />
+          </Button>
 
-          <Tooltip text="Clear">
-            <Button
-              onClick={clearAll}
-              disabled={isRunning || isEmptyMessage}
-            >
-              <EraserIcon />
-            </Button>
-          </Tooltip>
+          <Button
+            onClick={clearAll}
+            disabled={isRunning || isEmptyMessage}
+            tooltip="Clear"
+          >
+            <EraserIcon />
+          </Button>
 
         </div>
       </div>

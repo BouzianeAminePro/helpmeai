@@ -1,5 +1,16 @@
-export default function Button({ onClick, disabled, isRunning, fallback, children }) {
-    return (
+import { useCallback } from "preact/hooks";
+import Tooltip from "./tooltip";
+
+export default function Button({ onClick, disabled, isRunning, fallback, tooltip, children }) {
+    const render = useCallback((elems) =>
+        tooltip ?
+            <Tooltip text={tooltip}>
+                {elems}
+            </Tooltip> :
+            <>{elems}</>
+        , [tooltip]);
+
+    return render(
         <span className="relative flex">
             <button
                 onClick={onClick}
@@ -19,5 +30,5 @@ export default function Button({ onClick, disabled, isRunning, fallback, childre
                 }
             </button>
         </span>
-    );
+    )
 }
