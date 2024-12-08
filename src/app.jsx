@@ -65,7 +65,7 @@ export default function App() {
           const parsedValue = parseResponseChunk(chunkValue);
           textResponse += parsedValue?.response ?? "";
 
-          await setInStorage('response', textResponse, (result) => setResponse(textResponse));
+          await setInStorage('response', textResponse, () => setResponse(textResponse));
         } catch (parseError) {
           console.error("Error parsing JSON:", parseError);
           console.error("Received chunk:", chunkValue);
@@ -81,20 +81,15 @@ export default function App() {
 
   const copyToClipboard = useCallback(async () => {
     await navigator.clipboard.writeText(response);
-    chrome.runtime.sendMessage({ action: ACTIONS.COPY, payload: response });
-    setResponse("")
-    window.close()
+    await chrome.runtime.sendMessage({ action: ACTIONS.COPY, payload: response });
+    window.close();
   }, [response]);
 
-  const clearMessage = useCallback(async () => {
-    await chrome.storage.sync.set({
-      value: ""
-    });
-    setMessage('')
-  }, [])
+  const clearMessage = useCallback(async () => await setInStorage('value', '', () => setMessage('')), [])
+  const clearResponse = useCallback(async () => await setInStorage('response', '', () => setResponse('')), [])
 
   const clearAll = useCallback(async () => {
-    setResponse("");
+    clearResponse();
     clearMessage();
   }, []);
 
