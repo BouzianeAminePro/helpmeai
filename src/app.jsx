@@ -1,7 +1,7 @@
 import { useCallback, useState, useMemo } from "preact/hooks";
 
-import { generatePrompt, PROMPTS } from "./tools/prompt";
-import { ACTIONS } from "./tools/enums";
+import { generatePrompt } from "./tools/prompt";
+import { ACTIONS, PROMPTS } from "./tools/enums";
 
 import HobbyKnifeIcon from "./ui/svgs/HobbyKnifeIcon";
 import MagicWandIcon from "./ui/svgs/MagicWandIcon";
@@ -34,7 +34,7 @@ export default function App() {
       setIsRunning(true);
       setPromptType(promptType)
 
-      const response = await fetch(`http://localhost:11434/api/generate`, {
+      const response = await fetch(`${import.meta.env.VITE_OLLAMA_API_BASE_URL ?? 'http://localhost:11434/api'}/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -140,7 +140,7 @@ export default function App() {
                 isRunning &&
                   promptType === PROMPTS.CORRECT ?
                   await bodyReader?.cancel() :
-                  generate(PROMPTS.CORRECT)
+                  await generate(PROMPTS.CORRECT)
               }
               disabled={(isRunning && promptType !== PROMPTS.CORRECT) || isEmptyMessage}
               fallback={<CircleBackSlash />}
@@ -156,7 +156,7 @@ export default function App() {
                 isRunning &&
                   promptType === PROMPTS.PROMPT_IT ?
                   await bodyReader?.cancel() :
-                  generate(PROMPTS.PROMPT_IT)
+                  await generate(PROMPTS.PROMPT_IT)
               }
               disabled={(isRunning && promptType !== PROMPTS.PROMPT_IT) || isEmptyMessage}
               fallback={<CircleBackSlash />}
