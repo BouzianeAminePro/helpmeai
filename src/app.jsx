@@ -25,7 +25,7 @@ export default function App() {
 
   const generate = useCallback(async (promptType) => {
     let textResponse = "";
-    await setInStorage('response', textResponse);
+    await setInStorage('response', textResponse, () => setResponse(textResponse));
 
     try {
       setIsRunning(true);

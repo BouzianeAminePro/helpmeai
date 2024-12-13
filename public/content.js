@@ -13,11 +13,6 @@ const isColorCloseToBlack = (color) => {
     return rgb[0] < 50 && rgb[1] < 50 && rgb[2] < 50;
 };
 
-const isColorCloseToWhite = (color) => {
-    const rgb = color.match(/\d+/g).map(Number);
-    return rgb[0] > 200 && rgb[1] > 200 && rgb[2] > 200;
-};
-
 document.addEventListener("focusin", (event) => {
     const target = event.target;
 
@@ -62,11 +57,34 @@ document.addEventListener("focusin", (event) => {
 
     button.appendChild(image);
 
+    // Save the current selection
+    target.addEventListener("mouseup", saveSelection);
+    target.addEventListener("keyup", saveSelection);
+
+    function saveSelection() {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            savedRange = selection.getRangeAt(0);
+        }
+    }
+
+    // Restore the saved selection
+    function restoreSelection() {
+        if (savedRange) {
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(savedRange);
+        }
+    }
+
     button.addEventListener('click', (ev) => {
         ev.preventDefault();
+
+        restoreSelection();
+        const selectedText = window.getSelection()?.toString();
         chrome.runtime.sendMessage({
             action: ACTIONS.LISTEN,
-            payload: target.value ?? target.textContent,
+            payload: !!selectedText?.length ? selectedText : target.value ?? target.textContent,
         });
     });
 
@@ -79,6 +97,7 @@ document.addEventListener("focusin", (event) => {
     chrome.storage.sync.onChanged.addListener((result) => {
         if (!result?.copy?.newValue) return result;
         target.innerText = result.copy.newValue
+        target.value = result.copy.newValue
         chrome.runtime.sendMessage({ action: ACTIONS.COPY });
     });
 

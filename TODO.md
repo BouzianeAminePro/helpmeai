@@ -6,8 +6,8 @@
 - [x] optimize where to add the button, sometimes it overlapse cta buttons or not even in the correct place
 - [x] Update filter of image on theme or background (dark/light). 
 - [x] Store user input in sync data storage to ensure persistence even after closing the popup
+- [] Only update the selection not the entire field text content
+    - [x] get the selection for prompt
+    - [] update only the selection on the final response
 - [] make a flag to disable the extension
 - [] Fix the extension icon button
-
-to present featurs in futur sites video autoplay
-![alt text](image.png)
