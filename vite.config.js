@@ -3,32 +3,44 @@ import preact from '@preact/preset-vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
-  plugins: [
-    preact(),
-    viteStaticCopy({
-      targets: [
-        {
-          src: 'public/manifest.json',
-          dest: '.',
-        }
-      ],
-    }),
-  ],
-  build: {
-    outDir: "dist",
-    rollupOptions: {
-      input: {
-        main: "index.html",
-      },
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            return 'vendor';
-          }
+    server: {
+        watch: {
+            ignored: ["dist", "node_modules"],
+            include: "public/**"
         },
-      },
     },
-    minify: 'esbuild',
-    sourcemap: false,
-  },
+    plugins: [
+        preact({
+            include: ['public/content.js']
+        }),
+        viteStaticCopy({
+            targets: [
+                {
+                    src: 'public/*',
+                    dest: '.',
+                },
+                {
+                    src: 'src/assets/*',
+                    dest: '.',
+                }
+            ],
+        })
+    ],
+    build: {
+        outDir: "dist",
+        rollupOptions: {
+            input: {
+                main: "index.html",
+            },
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        return 'vendor';
+                    }
+                },
+            },
+        },
+        minify: 'esbuild',
+        sourcemap: false,
+    },
 });

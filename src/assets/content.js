@@ -26,14 +26,14 @@ document.addEventListener("focusin", (event) => {
         return;
     }
 
-    const parentBgColor = getComputedStyle(target).backgroundColor;
+    const colorScheme = getComputedStyle(target.parentElement).colorScheme;
 
     let button = document.querySelector(`#${BTN_ID}`)
 
     if (button) {
         const img = button.querySelector('img');
         if (img) {
-            img.style.filter = isColorCloseToBlack(parentBgColor) ? "invert(1)" : "invert(0)";
+            img.style.filter = colorScheme === "dark" ? "invert(1)" : "invert(0)";
         }
         return;
     }
@@ -53,11 +53,10 @@ document.addEventListener("focusin", (event) => {
     image.alt = 'Action';
     image.style.width = '40px';
     image.style.height = '40px';
-    image.style.filter = isColorCloseToBlack(parentBgColor) ? "invert(1)" : "invert(0)";
+    image.style.filter = colorScheme === "dark" ? "invert(1)" : "invert(0)";
 
     button.appendChild(image);
 
-    // Save the current selection
     target.addEventListener("mouseup", saveSelection);
     target.addEventListener("keyup", saveSelection);
 
@@ -79,9 +78,9 @@ document.addEventListener("focusin", (event) => {
 
     button.addEventListener('click', (ev) => {
         ev.preventDefault();
-
         restoreSelection();
         const selectedText = window.getSelection()?.toString();
+        chrome.runtime.sendMessage({ action: ACTIONS.RESPONSE, payload: "" });
         chrome.runtime.sendMessage({
             action: ACTIONS.LISTEN,
             payload: !!selectedText?.length ? selectedText : target.value ?? target.textContent,
@@ -113,7 +112,7 @@ document.addEventListener("focusin", (event) => {
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
         const img = button.querySelector('img');
         if (img) {
-            img.style.filter = isColorCloseToBlack(parentBgColor) ? "invert(1)" : "invert(0)";
+            img.style.filter = colorScheme === "dark" ? "invert(1)" : "invert(0)";
         }
     });
 });

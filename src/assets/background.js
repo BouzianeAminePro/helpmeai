@@ -1,10 +1,10 @@
-console.log("Background loaded!");
-
 const ACTIONS = {
     LISTEN: 'LISTEN',
     RESPONSE: 'RESPONSE',
     COPY: 'COPY',
 }
+
+console.log("Background loaded!");
 
 chrome.runtime.onInstalled.addListener(() => {
     console.log("Extension installed!");
