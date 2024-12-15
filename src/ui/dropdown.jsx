@@ -1,0 +1,67 @@
+import { useState, useEffect, useRef } from "preact/hooks";
+import VerticalDots from "./svgs/VerticalDots";
+
+export function Dropdown({ options, onClick }) {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    const handleOptionClick = (option) => {
+        onClick?.(option);
+        setIsOpen(false);
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    return (
+        <div className="relative inline-block text-left" ref={dropdownRef}>
+            <div>
+                <button
+                    type="button"
+                    id="menu-button"
+                    aria-expanded={isOpen}
+                    aria-haspopup="true"
+                    onClick={() => setIsOpen(!isOpen)}
+                >
+                    <div className="dark:invert-0">
+                        <VerticalDots />
+                    </div>
+                </button>
+            </div>
+            {isOpen && (
+                <div
+                    className={`absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} max-h-48 overflow-y-auto`}
+                    role="menu"
+                    aria-orientation="vertical"
+                    aria-labelledby="menu-button"
+                    tabIndex="-1"
+                >
+                    <div className="py-1" role="none">
+                        {options.map((option, index) =>
+                            <span
+                                key={index}
+                                className="block px-2 py-1 text-xs text-gray-700 cursor-pointer"
+                                role="menuitem"
+                                tabIndex="-1"
+                                id={`menu-item-${index}`}
+                                onClick={() => handleOptionClick(option)}
+                            >
+                                {option}
+                            </span>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}

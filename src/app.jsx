@@ -10,18 +10,32 @@ import ClipboardCopyIcon from "./ui/svgs/ClipboardCopyIcon";
 import EraserIcon from "./ui/svgs/EraserIcon";
 import CircleBackSlash from "./ui/svgs/CircleBackSlash";
 import Button from "./ui/button";
+import { Dropdown } from "./ui/dropdown";
 
 export default function App() {
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
   const [promptType, setPromptType] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [models, setModels] = useState([]);
+  const [selectedModel, setSelectedModel] = useState(null);
   const [bodyReader, setBodyReader] = useState();
 
   useEffect(() => {
-    getFromStorage('value', result => setMessage(result?.value))
-    getFromStorage('response', result => setResponse(result?.response))
-  }, [])
+    getFromStorage('value', ({ value = "" }) => setMessage(value))
+    getFromStorage('response', ({ response = "" }) => setResponse(response))
+  }, []);
+
+  useEffect(() => {
+    async function getModels() {
+      fetch(
+        `${import.meta.env.VITE_OLLAMA_API_BASE_URL ?? 'http://localhost:11434/api'}/tags`)
+        .then(response => response.json())
+        .then(data => setModels(data?.models?.map(({ name }) => name)))
+        .catch(error => console.error('Error fetching models:', error));
+    }
+    getModels();
+  }, []);
 
   const generate = useCallback(async (promptType) => {
     let textResponse = "";
@@ -37,7 +51,7 @@ export default function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "llama3.2",
+          model: selectedModel ?? "llama3.2",
           prompt: generatePrompt(message, promptType),
           stream: true,
         }),
@@ -77,7 +91,7 @@ export default function App() {
       setIsRunning(false);
       setPromptType(null);
     }
-  }, [message]);
+  }, [message, selectedModel]);
 
   const copyToClipboard = useCallback(async () => {
     await navigator.clipboard.writeText(response);
@@ -85,12 +99,9 @@ export default function App() {
     window.close();
   }, [response]);
 
-  const clearMessage = useCallback(async () => await setInStorage('value', '', () => setMessage('')), [])
-  const clearResponse = useCallback(async () => await setInStorage('response', '', () => setResponse('')), [])
-
   const clearAll = useCallback(async () => {
-    clearResponse();
-    clearMessage();
+    await setInStorage('response', '', () => setResponse(''));
+    await setInStorage('value', '', () => setMessage(''));
   }, []);
 
   const isEmptyMessage = useMemo(() => !message?.trim().length, [message])
@@ -98,81 +109,95 @@ export default function App() {
 
   return (
     <div className="h-[100%] overflow-y-scroll py-2 px-5">
-      <div className="flex flex-row h-[100%] items-center">
-        <img
-          src="/images/logo.png"
-          alt="logo"
-          className="w-[60px] h-[60px] dark:invert"
-        />
-        <h1 className="text-base">helpmeai</h1>
-      </div>
-
-      <div className="flex flex-col gap-y-3 items-center">
-        {
-          !isEmptyMessage &&
-          <p className="text-base leading-6 mb-4 bg-slate-600 p-2.5 rounded-2xl self-end dark:text-white">{message}</p>
-        }
-        {
-          !isEmptyResponse &&
-          <div className="flex flex-row gap-x-2 items-center">
-            <img
-              src="/images/logo.png"
-              alt="logo"
-              className="w-[40px] h-[40px] dark:invert"
+      <header className="fixed top-0 left-0 right-0 z-10">
+        <div className="flex flex-row items-center p-2">
+          <img
+            src="/images/logo.png"
+            alt="logo"
+            className="w-[60px] h-[60px] dark:invert"
+          />
+          <h1 className="text-base">helpmeai</h1>
+          <div className="ml-auto">
+            <Dropdown
+              onClick={setSelectedModel}
+              options={models}
             />
-            <p className="text-base leading-6 mb-4 overflow-y-scroll h-max-[200px] dark:text-white">{response}</p>
+          </div>
+        </div>
+      </header>
+      <div className="pt-[80px] w-[100%]">
+        {isEmptyMessage && isEmptyMessage &&
+          <div className="flex items-center justify-center p-8">
+            Nothing to process...
           </div>
         }
-      </div>
+        <div className="flex flex-col gap-y-3 items-center">
+          {
+            !isEmptyMessage &&
+            <p className="text-sm leading-6 mb-4 bg-slate-600 p-2.5 rounded-2xl w-fit self-end dark:text-white">{message}</p>
+          }
+          {
+            !isEmptyResponse &&
+            <div className="flex flex-row gap-x-2 items-center">
+              <img
+                src="/images/logo.png"
+                alt="logo"
+                className="w-[40px] h-[40px] dark:invert"
+              />
+              <p className="text-sm leading-6 mb-4 overflow-y-scroll h-max-[200px] dark:text-white">{response}</p>
+            </div>
+          }
+        </div>
 
-      <div className="flex flex-col gap-2">
-        <div className="flex gap-4 justify-evenly">
-          <Button
-            onClick={async () =>
-              isRunning &&
-                promptType === PROMPTS.CORRECT ?
-                await bodyReader?.cancel() :
-                await generate(PROMPTS.CORRECT)
-            }
-            disabled={(isRunning && promptType !== PROMPTS.CORRECT) || isEmptyMessage}
-            fallback={<CircleBackSlash />}
-            isRunning={isRunning && promptType === PROMPTS.CORRECT}
-            tooltip="Correct"
-          >
-            <HobbyKnifeIcon />
-          </Button>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-4 justify-evenly">
+            <Button
+              onClick={async () =>
+                isRunning &&
+                  promptType === PROMPTS.CORRECT ?
+                  await bodyReader?.cancel() :
+                  await generate(PROMPTS.CORRECT)
+              }
+              disabled={(isRunning && promptType !== PROMPTS.CORRECT) || isEmptyMessage}
+              fallback={<CircleBackSlash />}
+              isRunning={isRunning && promptType === PROMPTS.CORRECT}
+              tooltip="Correction"
+            >
+              <HobbyKnifeIcon />
+            </Button>
 
-          <Button
-            onClick={async () =>
-              isRunning &&
-                promptType === PROMPTS.PROMPT_IT ?
-                await bodyReader?.cancel() :
-                await generate(PROMPTS.PROMPT_IT)
-            }
-            disabled={(isRunning && promptType !== PROMPTS.PROMPT_IT) || isEmptyMessage}
-            fallback={<CircleBackSlash />}
-            isRunning={isRunning && promptType === PROMPTS.PROMPT_IT}
-            tooltip="Promptify"
-          >
-            <MagicWandIcon />
-          </Button>
+            <Button
+              onClick={async () =>
+                isRunning &&
+                  promptType === PROMPTS.PROMPT_IT ?
+                  await bodyReader?.cancel() :
+                  await generate(PROMPTS.PROMPT_IT)
+              }
+              disabled={(isRunning && promptType !== PROMPTS.PROMPT_IT) || isEmptyMessage}
+              fallback={<CircleBackSlash />}
+              isRunning={isRunning && promptType === PROMPTS.PROMPT_IT}
+              tooltip="Promptify"
+            >
+              <MagicWandIcon />
+            </Button>
 
-          <Button
-            onClick={copyToClipboard}
-            disabled={isRunning || isEmptyMessage}
-            tooltip="Copy/Insert"
-          >
-            <ClipboardCopyIcon />
-          </Button>
+            <Button
+              onClick={copyToClipboard}
+              disabled={isRunning || isEmptyMessage}
+              tooltip="Copy/Insert"
+            >
+              <ClipboardCopyIcon />
+            </Button>
 
-          <Button
-            onClick={clearAll}
-            disabled={isRunning || isEmptyMessage}
-            tooltip="Clear"
-          >
-            <EraserIcon />
-          </Button>
+            <Button
+              onClick={clearAll}
+              disabled={isRunning || isEmptyMessage}
+              tooltip="Clear"
+            >
+              <EraserIcon />
+            </Button>
 
+          </div>
         </div>
       </div>
     </div>
