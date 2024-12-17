@@ -8,11 +8,6 @@ const BTN_ID = "action-helpmeai";
 
 console.log("Content loaded!");
 
-const isColorCloseToBlack = (color) => {
-    const rgb = color.match(/\d+/g).map(Number);
-    return rgb[0] < 50 && rgb[1] < 50 && rgb[2] < 50;
-};
-
 document.addEventListener("focusin", (event) => {
     const target = event.target;
 

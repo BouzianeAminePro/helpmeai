@@ -1,14 +1,18 @@
-import { useState, useEffect, useRef } from "preact/hooks";
+import { useState, useEffect, useRef, useCallback } from "preact/hooks";
 import VerticalDots from "./svgs/VerticalDots";
 
-export function Dropdown({ options, onClick }) {
+export function Dropdown({ options, selected, onClick }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [selectedOption, setSelectedOption] = useState(selected);
     const dropdownRef = useRef(null);
 
-    const handleOptionClick = (option) => {
+    const handleOptionClick = useCallback((option) => {
+        setSelectedOption(option);
         onClick?.(option);
         setIsOpen(false);
-    };
+    }, []);
+
+    useEffect(() => setSelectedOption(selected), [selected]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -50,7 +54,9 @@ export function Dropdown({ options, onClick }) {
                         {options.map((option, index) =>
                             <span
                                 key={index}
-                                className="block px-2 py-1 text-xs text-gray-700 cursor-pointer"
+                                className={`block px-2 py-1 text-xs cursor-pointer 
+                                    ${selectedOption === option ? 'bg-slate-400 text-white' : 'text-gray-700'} 
+                                    hover:bg-slate-600 hover:text-white`}
                                 role="menuitem"
                                 tabIndex="-1"
                                 id={`menu-item-${index}`}

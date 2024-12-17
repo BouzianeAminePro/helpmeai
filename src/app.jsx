@@ -18,11 +18,12 @@ export default function App() {
   const [promptType, setPromptType] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [models, setModels] = useState([]);
-  const [selectedModel, setSelectedModel] = useState(null);
+  const [selectedModel, setSelectedModel] = useState(models?.[0] ?? null);
   const [bodyReader, setBodyReader] = useState();
 
   useEffect(() => {
     getFromStorage('value', ({ value = "" }) => setMessage(value))
+    getFromStorage('model', ({ model = "" }) => setSelectedModel(model))
     getFromStorage('response', ({ response = "" }) => setResponse(response))
   }, []);
 
@@ -119,14 +120,20 @@ export default function App() {
           <h1 className="text-base">helpmeai</h1>
           <div className="ml-auto">
             <Dropdown
-              onClick={setSelectedModel}
+              onClick={async (option) => await setInStorage('model', option, () => setSelectedModel(option))}
+              selected={selectedModel}
               options={models}
             />
           </div>
         </div>
       </header>
       <div className="pt-[80px] w-[100%]">
-        {isEmptyMessage && isEmptyMessage &&
+        {!selectedModel &&
+          <div className="flex items-center justify-center p-8 text-xs">
+            Please select/download your favorite Ollama model...
+          </div>
+        }
+        {isEmptyMessage && isEmptyResponse &&
           <div className="flex items-center justify-center p-8">
             Nothing to process...
           </div>

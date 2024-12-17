@@ -9,5 +9,6 @@
 - [] Only update the selection not the entire field text content
     - [x] get the selection for prompt
     - [] update only the selection on the final response
-- [] make a flag to disable the extension
+- [x] Handle case no models downloaded or selected
+- [] make a flag to disable the extension on a page
 - [] Fix the extension icon button
