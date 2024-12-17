@@ -167,7 +167,7 @@ export default function App() {
                   await bodyReader?.cancel() :
                   await generate(PROMPTS.CORRECT)
               }
-              disabled={(isRunning && promptType !== PROMPTS.CORRECT) || isEmptyMessage}
+              disabled={(isRunning && promptType !== PROMPTS.CORRECT) || isEmptyMessage || !selectedModel}
               fallback={<CircleBackSlash />}
               isRunning={isRunning && promptType === PROMPTS.CORRECT}
               tooltip="Correction"
@@ -182,7 +182,7 @@ export default function App() {
                   await bodyReader?.cancel() :
                   await generate(PROMPTS.PROMPT_IT)
               }
-              disabled={(isRunning && promptType !== PROMPTS.PROMPT_IT) || isEmptyMessage}
+              disabled={(isRunning && promptType !== PROMPTS.PROMPT_IT) || isEmptyMessage || !selectedModel}
               fallback={<CircleBackSlash />}
               isRunning={isRunning && promptType === PROMPTS.PROMPT_IT}
               tooltip="Promptify"
@@ -192,7 +192,7 @@ export default function App() {
 
             <Button
               onClick={copyToClipboard}
-              disabled={isRunning || isEmptyMessage}
+              disabled={isRunning || isEmptyMessage || !selectedModel}
               tooltip="Copy/Insert"
             >
               <ClipboardCopyIcon />
@@ -200,7 +200,7 @@ export default function App() {
 
             <Button
               onClick={clearAll}
-              disabled={isRunning || isEmptyMessage}
+              disabled={isRunning || isEmptyMessage || !selectedModel}
               tooltip="Clear"
             >
               <EraserIcon />
