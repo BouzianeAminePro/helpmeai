@@ -2,7 +2,6 @@ import { useCallback, useState, useMemo, useEffect } from "preact/hooks";
 
 import { generatePrompt } from "./tools/prompt";
 import { ACTIONS, PROMPTS } from "./tools/enums";
-import { getFromStorage, setInStorage, parseResponseChunk } from "./tools/utils";
 
 import HobbyKnifeIcon from "./ui/svgs/HobbyKnifeIcon";
 import MagicWandIcon from "./ui/svgs/MagicWandIcon";
@@ -11,21 +10,17 @@ import EraserIcon from "./ui/svgs/EraserIcon";
 import CircleBackSlash from "./ui/svgs/CircleBackSlash";
 import Button from "./ui/button";
 import { Dropdown } from "./ui/dropdown";
+import useSyncStorage from "./hooks/useSyncStorage";
 
 export default function App() {
-  const [message, setMessage] = useState("");
-  const [response, setResponse] = useState("");
   const [promptType, setPromptType] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [models, setModels] = useState([]);
-  const [selectedModel, setSelectedModel] = useState(models?.[0] ?? null);
   const [bodyReader, setBodyReader] = useState();
 
-  useEffect(() => {
-    getFromStorage('value', ({ value = "" }) => setMessage(value))
-    getFromStorage('model', ({ model = "" }) => setSelectedModel(model))
-    getFromStorage('response', ({ response = "" }) => setResponse(response))
-  }, []);
+  const [message, setMessage] = useSyncStorage('value');
+  const [selectedModel, setSelectedModel] = useSyncStorage('model');
+  const [response, setResponse] = useSyncStorage('response');
 
   useEffect(() => {
     async function getModels() {
@@ -40,7 +35,7 @@ export default function App() {
 
   const generate = useCallback(async (promptType) => {
     let textResponse = "";
-    await setInStorage('response', textResponse, () => setResponse(textResponse));
+    await setResponse(textResponse);
 
     try {
       setIsRunning(true);
@@ -77,10 +72,10 @@ export default function App() {
             done = true;
             continue;
           }
-          const parsedValue = parseResponseChunk(chunkValue);
+          const parsedValue = JSON.parse(chunkValue === "" ? null : chunkValue);
           textResponse += parsedValue?.response ?? "";
 
-          await setInStorage('response', textResponse, () => setResponse(textResponse));
+          await setResponse(textResponse);
         } catch (parseError) {
           console.error("Error parsing JSON:", parseError);
           console.error("Received chunk:", chunkValue);
@@ -101,8 +96,8 @@ export default function App() {
   }, [response]);
 
   const clearAll = useCallback(async () => {
-    await setInStorage('response', '', () => setResponse(''));
-    await setInStorage('value', '', () => setMessage(''));
+    await setResponse('');
+    await setMessage('');
   }, []);
 
   const isEmptyMessage = useMemo(() => !message?.trim().length, [message])
@@ -122,7 +117,7 @@ export default function App() {
           </div>
           <div className="ml-auto">
             <Dropdown
-              onClick={async (option) => await setInStorage('model', option, () => setSelectedModel(option))}
+              onClick={async (option) => await setSelectedModel(option)}
               selected={selectedModel}
               options={models}
             />
