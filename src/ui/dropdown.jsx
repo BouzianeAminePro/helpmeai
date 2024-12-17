@@ -28,7 +28,7 @@ export function Dropdown({ options, selected, onClick }) {
     }, []);
 
     return (
-        <div className="relative inline-block text-left" ref={dropdownRef}>
+        <div className="relative inline-block text-left max-w-[130px]" ref={dropdownRef}>
             <div>
                 <button
                     type="button"
@@ -36,7 +36,17 @@ export function Dropdown({ options, selected, onClick }) {
                     aria-expanded={isOpen}
                     aria-haspopup="true"
                     onClick={() => setIsOpen(!isOpen)}
+                    className="flex flex-row gap-x-1 items-center"
                 >
+                    <span
+                        className="text-xs overflow-ellipsis overflow-hidden break-words"
+                        style={{
+                            display: "-webkit-box",
+                            "-webkit-line-clamp": 1,
+                            "-webkit-box-orient": "vertical"
+                        }}>
+                        {selectedOption || 'Select a model'}
+                    </span>
                     <div className="dark:invert-0">
                         <VerticalDots />
                     </div>

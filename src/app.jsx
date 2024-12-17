@@ -112,12 +112,14 @@ export default function App() {
     <div className="h-[100%] overflow-y-scroll py-2 px-5">
       <header className="fixed top-0 left-0 right-0 z-10">
         <div className="flex flex-row items-center p-2">
-          <img
-            src="/images/logo.png"
-            alt="logo"
-            className="w-[60px] h-[60px] dark:invert"
-          />
-          <h1 className="text-base">helpmeai</h1>
+          <div className="flex flex-row items-center">
+            <img
+              src="/images/logo.png"
+              alt="logo"
+              className="w-[60px] h-[60px] dark:invert"
+            />
+            <h1 className="text-sm">helpmeai</h1>
+          </div>
           <div className="ml-auto">
             <Dropdown
               onClick={async (option) => await setInStorage('model', option, () => setSelectedModel(option))}
