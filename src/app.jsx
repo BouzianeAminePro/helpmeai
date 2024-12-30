@@ -2,6 +2,7 @@ import { useCallback, useState, useMemo, useEffect } from "preact/hooks";
 
 import { generatePrompt } from "./tools/prompt";
 import { ACTIONS, PROMPTS } from "./tools/enums";
+import useSyncStorage from "./hooks/useSyncStorage";
 
 import HobbyKnifeIcon from "./ui/svgs/HobbyKnifeIcon";
 import MagicWandIcon from "./ui/svgs/MagicWandIcon";
@@ -10,7 +11,6 @@ import EraserIcon from "./ui/svgs/EraserIcon";
 import CircleBackSlash from "./ui/svgs/CircleBackSlash";
 import Button from "./ui/button";
 import { Dropdown } from "./ui/dropdown";
-import useSyncStorage from "./hooks/useSyncStorage";
 
 export default function App() {
   const [promptType, setPromptType] = useState(null);

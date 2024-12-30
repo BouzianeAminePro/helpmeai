@@ -55,6 +55,8 @@ document.addEventListener("focusin", (event) => {
     target.addEventListener("mouseup", saveSelection);
     target.addEventListener("keyup", saveSelection);
 
+    let savedRange = null;
+
     function saveSelection() {
         const selection = window.getSelection();
         if (selection.rangeCount > 0) {
