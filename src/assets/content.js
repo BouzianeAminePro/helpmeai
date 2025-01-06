@@ -90,11 +90,13 @@ document.addEventListener("focusin", (event) => {
 
     document.body.appendChild(button);
 
-    chrome.storage.sync.onChanged.addListener((result) => {
-        if (!result?.copy?.newValue) return result;
-        target.innerText = result.copy.newValue
-        target.value = result.copy.newValue
-        chrome.runtime.sendMessage({ action: ACTIONS.COPY });
+    chrome.storage.sync.onChanged.addListener((result, _, sendResponse) => {
+        if (!!result?.copy?.newValue) {
+            target.innerText = result.copy.newValue;
+            target.value = result.copy.newValue;
+            chrome.runtime.sendMessage({ action: ACTIONS.COPY });
+            sendResponse({ success: true });
+        }
     });
 
     const handleClickOutside = (event) => {

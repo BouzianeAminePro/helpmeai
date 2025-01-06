@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Helpmeai (Ollama)",
-    "version": "1.0",
+    "version": "1.0.1",
     "description": "Helpmeai is for your daily use opensource ai, Ollama only for now.",
     "action": {
         "default_popup": "index.html",
@@ -13,9 +13,7 @@
     },
     "permissions": [
         "storage",
-        "tabs",
-        "activeTab",
-        "nativeMessaging"
+        "activeTab"
     ],
     "host_permissions": [
         "http://localhost:11434/*"
