@@ -6,5 +6,6 @@ export const ACTIONS = {
 
 export const PROMPTS = {
     CORRECT: 1,
-    PROMPT_IT: 2
+    PROMPT_IT: 2,
+    CUSTOM: 3,
 }

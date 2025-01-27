@@ -10,17 +10,21 @@ import ClipboardCopyIcon from "./ui/svgs/ClipboardCopyIcon";
 import EraserIcon from "./ui/svgs/EraserIcon";
 import CircleBackSlash from "./ui/svgs/CircleBackSlash";
 import Button from "./ui/button";
-import { Dropdown } from "./ui/dropdown";
+import Dropdown from "./ui/dropdown";
+import Tooltip from "./ui/tooltip";
+import TextArea from "./ui/textarea";
 
 export default function App() {
   const [promptType, setPromptType] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [models, setModels] = useState([]);
   const [bodyReader, setBodyReader] = useState();
+  const [forceVisible, setForceVisible] = useState(false);
 
   const [message, setMessage] = useSyncStorage('value');
   const [selectedModel, setSelectedModel] = useSyncStorage('model');
   const [response, setResponse] = useSyncStorage('response');
+  const [customPrompt, setCustomPrompt] = useSyncStorage('customPrompt');
 
   useEffect(() => {
     async function getModels() {
@@ -33,7 +37,7 @@ export default function App() {
     getModels();
   }, []);
 
-  const generate = useCallback(async (promptType) => {
+  const generate = useCallback(async (promptType, prompt = "") => {
     let textResponse = "";
     await setResponse(textResponse);
 
@@ -48,7 +52,7 @@ export default function App() {
         },
         body: JSON.stringify({
           model: selectedModel ?? "llama3.2",
-          prompt: generatePrompt(message, promptType),
+          prompt: generatePrompt(message, promptType, prompt),
           stream: true,
         }),
       });
@@ -100,8 +104,18 @@ export default function App() {
     await setMessage('');
   }, []);
 
-  const isEmptyMessage = useMemo(() => !message?.trim().length, [message])
-  const isEmptyResponse = useMemo(() => !response?.trim().length, [response])
+  const isEmptyMessage = useMemo(() => !message?.trim().length, [message]);
+  const isEmptyResponse = useMemo(() => !response?.trim().length, [response]);
+
+
+  const onPromptKeyDown = useCallback(
+    async (e) => {
+      if (e.key === "Enter" && (e?.target?.value ?? "")?.trim().length) {
+        setForceVisible(false);
+        setCustomPrompt(e?.target?.value)
+        await generate(PROMPTS.CUSTOM, e?.target?.value);
+      }
+    }, []);
 
   return (
     <div className="h-[100%] overflow-y-scroll py-2 px-5">
@@ -170,20 +184,31 @@ export default function App() {
               <HobbyKnifeIcon />
             </Button>
 
-            <Button
-              onClick={async () =>
-                isRunning &&
-                  promptType === PROMPTS.PROMPT_IT ?
-                  await bodyReader?.cancel() :
-                  await generate(PROMPTS.PROMPT_IT)
+            <Tooltip
+              text={
+                <TextArea
+                  value={customPrompt ?? ""}
+                  placeholder="Enter to validate prompt..."
+                  key="prompter"
+                  onKeyDown={onPromptKeyDown}
+                />
               }
-              disabled={(isRunning && promptType !== PROMPTS.PROMPT_IT) || isEmptyMessage || !selectedModel}
-              fallback={<CircleBackSlash />}
-              isRunning={isRunning && promptType === PROMPTS.PROMPT_IT}
-              tooltip="Promptify"
+              forceVisible={forceVisible}
+              bgColor="bg-slate-700"
             >
-              <MagicWandIcon />
-            </Button>
+              <Button
+                onClick={async () =>
+                  isRunning && promptType === PROMPTS.CUSTOM ?
+                    await bodyReader?.cancel() :
+                    setForceVisible(prev => !prev)
+                }
+                disabled={(isRunning && promptType !== PROMPTS.CUSTOM) || isEmptyMessage || !selectedModel}
+                fallback={<CircleBackSlash />}
+                isRunning={isRunning && promptType === PROMPTS.CUSTOM}
+              >
+                <MagicWandIcon />
+              </Button>
+            </Tooltip>
 
             <Button
               onClick={copyToClipboard}

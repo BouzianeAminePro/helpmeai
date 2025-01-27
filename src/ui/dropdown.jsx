@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "preact/hooks";
 import VerticalDots from "./svgs/VerticalDots";
 
-export function Dropdown({ options, selected, onClick }) {
+export default function Dropdown({ options, selected, onClick }) {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState(selected);
     const dropdownRef = useRef(null);

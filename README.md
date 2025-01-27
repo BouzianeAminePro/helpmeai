@@ -55,3 +55,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Acknowledgments
 
 - Thanks to the open-source community for their contributions and support.
+
+## Additional Documentation
+
+- For configuring the Ollama server, please refer to the [Ollama Documentation](https://github.com/ollama/ollama/blob/main/docs/faq.md#how-do-i-configure-ollama-server).
+- If you encounter a 403 problem, ensure that you have added the necessary environment variables and reload the Ollama server after making changes.

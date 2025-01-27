@@ -7,6 +7,7 @@
 - [x] Update filter of image on theme or background (dark/light). 
 - [x] Store user input in sync data storage to ensure persistence even after closing the popup
 - [x] Handle case no models downloaded or selected
+- [x] Add custom tooltip to prompt what needed on what to process, join with my prompting to give only the answer
 - [] Only update the selection not the entire field text content
     - [x] get the selection for prompt
     - [] update only the selection on the final response
