@@ -10,6 +10,7 @@
     "watch:build": "vite build --watch"
   },
   "dependencies": {
+    "posthog-js": "^1.213.0",
     "preact": "^10.25.0"
   },
   "devDependencies": {

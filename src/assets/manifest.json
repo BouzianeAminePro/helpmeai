@@ -15,7 +15,8 @@
         "storage"
     ],
     "host_permissions": [
-        "http://localhost:11434/*"
+        "http://localhost:11434/*",
+        "https://eu-assets.i.posthog.com/*"
     ],
     "background": {
         "service_worker": "background.js"
@@ -52,6 +53,14 @@
             ],
             "matches": [
                 "http://localhost:11434/*"
+            ]
+        },
+        {
+            "resources": [
+                "assets/*"
+            ],
+            "matches": [
+                "https://eu-assets.i.posthog.com/*"
             ]
         }
     ],

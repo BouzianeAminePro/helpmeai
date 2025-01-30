@@ -13,6 +13,7 @@ import Button from "./ui/button";
 import Dropdown from "./ui/dropdown";
 import Tooltip from "./ui/tooltip";
 import TextArea from "./ui/textarea";
+import posthog from "posthog-js/dist/module.full.no-external";
 
 export default function App() {
   const [promptType, setPromptType] = useState(null);
@@ -197,11 +198,14 @@ export default function App() {
               bgColor="bg-slate-700"
             >
               <Button
-                onClick={async () =>
+                onClick={async () => {
                   isRunning && promptType === PROMPTS.CUSTOM ?
                     await bodyReader?.cancel() :
-                    setForceVisible(prev => !prev)
-                }
+                    setForceVisible(prev => !prev);
+                  try {
+                    posthog?.capture('open-custom-prompt', {})
+                  } catch (e) { console.error(e) }
+                }}
                 disabled={(isRunning && promptType !== PROMPTS.CUSTOM) || isEmptyMessage || !selectedModel}
                 fallback={<CircleBackSlash />}
                 isRunning={isRunning && promptType === PROMPTS.CUSTOM}
