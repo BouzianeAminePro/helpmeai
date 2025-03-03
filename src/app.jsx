@@ -102,6 +102,7 @@ export default function App() {
   const clearAll = useCallback(async () => {
     await setResponse('');
     await setMessage('');
+    await setCustomPrompt('');
   }, []);
 
   const isEmptyMessage = useMemo(() => !message?.trim().length, [message]);
@@ -115,7 +116,7 @@ export default function App() {
         setCustomPrompt(e?.target?.value)
         await generate(PROMPTS.CUSTOM, e?.target?.value);
       }
-    }, []);
+    }, [generate]);
 
   return (
     <div className="h-[100%] overflow-y-scroll py-2 px-5">

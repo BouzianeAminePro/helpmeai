@@ -1,22 +1,25 @@
 import { PROMPTS } from "./enums";
 
 export function generatePrompt(text, promptType, prompt = "") {
+    const baseInstruction = `You MUST follow these instructions exactly. 
+    - DO NOT explain, rephrase, format, add context, or give suggestions.  
+    - DO NOT include reasoning, interpretation, or personal thoughts.  
+    - DO NOT alter, remove, or introduce any information beyond the strict request.  
+    - Your response MUST be limited to the exact requested output.`;
+
     switch (promptType) {
         case PROMPTS.CORRECT:
-            return `Answer only with the requested information. Do not include explanations, formatting, or suggestions, don't include your thinking or reflex.
-            Please correct the spelling and grammar of the following text. Maintain the original meaning, do not change the structure unless necessary to fix errors:
-            Text: ${text}
-            `;
-        case PROMPTS.PROMPT_IT:
-            return `Answer only with the requested information. Do not include explanations, formatting, or suggestions, don't include your thinking or reflex.
-            You are a language model that helps users turn raw text into well-structured prompts. Rewrite the following text as a clear, concise prompt:
-            Text: "${text}"
-            `;
+            return `${baseInstruction}
+            TASK: Correct spelling and grammar **without** changing meaning, structure, or style unless fixing an actual error.
+            OUTPUT ONLY: The corrected text.
+            INPUT: "${text}"`;
+
         case PROMPTS.CUSTOM:
-            return `Answer only with the requested information. Do not include explanations, formatting, or suggestions, don't include your thinking or reflex.
-            You are a language model that helps users turn raw text into what they need. ${prompt}:
-            Text: "${text}"
-            `;
+            return `${baseInstruction}
+            TASK: ${prompt}  
+            OUTPUT ONLY: Provide the exact result as required, with zero modifications beyond the strict request.
+            INPUT: "${text}"`;
+
         default:
             return null;
     }
