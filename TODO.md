@@ -11,9 +11,9 @@
 - [] Only update the selection not the entire field text content
     - [x] get the selection for prompt
     - [] update only the selection on the final response
-- [] integrate feedback service 
+- [x] integrate feedback service 
     - [x] sub to some free feedback service
-    - [] redirect link to the showcase integation
+    - [x] redirect link to the showcase integation
 - [] make subbb.me/discord community
 - [] add support for other's paying ai's out there (openai, claude, ...)
 - [] make a flag to disable the extension on a page
