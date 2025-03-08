@@ -97,7 +97,7 @@ export default function App() {
           bodyReader={bodyReader}
           generate={generate}
           isEmptyMessage={isEmptyMessage}
-          selectedModel={selectedModel}
+          selectedModel={true}
           forceVisible={forceVisible}
           setForceVisible={setForceVisible}
           customPrompt={customPrompt}

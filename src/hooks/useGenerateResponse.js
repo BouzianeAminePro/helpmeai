@@ -27,6 +27,16 @@ export default function useGenerateResponse({ message, selectedModel, setRespons
         }
       );
 
+      // TODO only if the user has subscription and give 7 free generation trials
+      // const response = await puter.ai.chat(generatePrompt(message, promptType, prompt),
+      //   { stream: true }
+      // );
+
+      // for await (const part of response) {
+      //   textResponse += part?.text ?? "";
+      //   await setResponse(textResponse);
+      // }
+
       if (!response.ok) throw new Error("Network response was not ok");
 
       const reader = response.body.getReader();
@@ -39,7 +49,7 @@ export default function useGenerateResponse({ message, selectedModel, setRespons
         const { value, done: doneReading } = await reader.read();
         done = doneReading ?? true;
         const chunkValue = decoder.decode(value, { stream: true });
-        
+
         try {
           if (chunkValue === "") {
             done = true;
