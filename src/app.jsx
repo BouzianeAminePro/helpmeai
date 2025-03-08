@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
-import { PROMPTS } from "./tools/enums";
+import { ACTIONS, PROMPTS } from "./tools/enums";
 import useSyncStorage, { ONE_MONTH_MS } from "./hooks/useSyncStorage";
 import useModels from "./hooks/useModels";
 import useGenerateResponse from "./hooks/useGenerateResponse";
@@ -7,35 +7,45 @@ import useClipboard from "./hooks/useClipboard";
 import Header from "./components/Header";
 import ChatDisplay from "./components/ChatDisplay";
 import ActionButtons from "./components/ActionButtons";
+import UserDisplay from "./components/UserDisplay";
 import { FeedbackIcon } from "./components/ui/svgs/FeedbackIcon";
 import Button from "./components/ui/button";
-import { migrateStorage } from "./utils/storageMigration";
 
 export default function App() {
   const [forceVisible, setForceVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [message, setMessage] = useSyncStorage('value');
   const [selectedModel, setSelectedModel] = useSyncStorage('model');
+  const [user, setUser] = useSyncStorage('user');
   const [response, setResponse] = useSyncStorage('response');
   const [customPrompt, setCustomPrompt] = useSyncStorage('customPrompt');
   const [feedback, setFeedBack] = useSyncStorage('feedback', ONE_MONTH_MS);
-  const [migrationComplete, setMigrationComplete] = useSyncStorage('migration');
+
+  const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
 
   useEffect(() => {
-    if (migrationComplete) return;
+    chrome.runtime.sendMessage({ action: ACTIONS.GET_AUTH_TOKEN }, (response) => {
+      console.log(response)
+      if (response?.authToken && response?.user) {
+        const now = new Date();
+        const expires = new Date(response.expires);
 
-    async function runMigration() {
-      try {
-        await migrateStorage();
-        setMigrationComplete(true);
-      } catch (error) {
-        console.error("Storage migration failed:", error);
-        setMigrationComplete(true);
+        if (now < expires) {
+          setUser(response.user);
+        } else {
+          chrome.runtime.sendMessage({ action: 'LOGOUT' });
+        }
       }
-    }
+      setLoading(false);
+    });
+  }, []);
 
-    runMigration();
-  }, [migrationComplete]);
+  const logout = () => {
+    chrome.runtime.sendMessage({ action: 'LOGOUT' }, () => {
+      setUser(null);
+    });
+  };
 
   // Custom hooks
   const models = useModels();
@@ -51,6 +61,10 @@ export default function App() {
   const isEmptyResponse = useMemo(() => !response?.trim().length, [response]);
 
   // Handlers
+  async function handleLogin() {
+    chrome.tabs.create({ url: `${API_URL}/auth/signin` });
+  }
+
   const clearAll = useCallback(async () => {
     await setResponse('');
     await setMessage('');
@@ -65,12 +79,12 @@ export default function App() {
     }
   }, [generate]);
 
-  if (!migrationComplete) {
+  if (loading) {
     return <div className="flex items-center justify-center h-full">Loading...</div>;
   }
 
   return (
-    <div className="h-[100%] overflow-y-scroll py-2 px-5">
+    <div className="h-[100%] overflow-y-scroll py-2 px-5 relative">
       <Header
         selectedModel={selectedModel}
         setSelectedModel={setSelectedModel}
@@ -91,23 +105,25 @@ export default function App() {
           isEmptyResponse={isEmptyResponse}
         />
 
-        <ActionButtons
-          isRunning={isRunning}
-          promptType={promptType}
-          bodyReader={bodyReader}
-          generate={generate}
-          isEmptyMessage={isEmptyMessage}
-          selectedModel={selectedModel}
-          forceVisible={forceVisible}
-          setForceVisible={setForceVisible}
-          customPrompt={customPrompt}
-          onPromptKeyDown={onPromptKeyDown}
-          copyToClipboard={copyToClipboard}
-          clearAll={clearAll}
-        />
+        <div className="mb-[3rem]">
+          <ActionButtons
+            isRunning={isRunning}
+            promptType={promptType}
+            bodyReader={bodyReader}
+            generate={generate}
+            isEmptyMessage={isEmptyMessage}
+            selectedModel={selectedModel}
+            forceVisible={forceVisible}
+            setForceVisible={setForceVisible}
+            customPrompt={customPrompt}
+            onPromptKeyDown={onPromptKeyDown}
+            copyToClipboard={copyToClipboard}
+            clearAll={clearAll}
+          />
+        </div>
 
-        {!feedback &&
-          <div className="flex justify-center mt-4">
+        <div className="flex justify-center">
+          {!feedback &&
             <a
               target="_blank"
               href={import.meta.env.VITE_CANNY_URL ?? "https://helpmeai.canny.io/feature-requests"}
@@ -117,8 +133,16 @@ export default function App() {
                 <FeedbackIcon />
               </Button>
             </a>
-          </div>
-        }
+          }
+        </div>
+      </div>
+
+      <div className="fixed bottom-4 right-4">
+        <UserDisplay
+          user={user}
+          onLogout={logout}
+          onLogin={handleLogin}
+        />
       </div>
     </div>
   );

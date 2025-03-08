@@ -2,6 +2,9 @@ const ACTIONS = {
     LISTEN: 'LISTEN',
     COPY: 'COPY',
     RESPONSE: 'RESPONSE',
+    OPEN_EXTENSION: 'OPEN_EXTENSION',
+    NEXTAUTH_TOKEN: 'NEXTAUTH_TOKEN',
+    SET_AUTH_TOKEN: 'SET_AUTH_TOKEN',
 };
 
 const BTN_ID = "action-helpmeai";
@@ -114,4 +117,21 @@ document.addEventListener("focusin", (event) => {
             img.style.filter = colorScheme === "dark" ? "invert(1)" : "invert(0)";
         }
     });
+});
+
+window.addEventListener('message', async (event) => {
+    switch (event.data.type) {
+        case ACTIONS.OPEN_EXTENSION:
+            await chrome.runtime.sendMessage({ action: ACTIONS.OPEN_EXTENSION, token: event.data.token });
+            break;
+            
+        case ACTIONS.NEXTAUTH_TOKEN:
+            await chrome.runtime.sendMessage({
+                action: ACTIONS.SET_AUTH_TOKEN,
+                token: event.data.token,
+                expires: event.data.expires,
+                user: event.data.user
+            });
+            break;
+    }
 });

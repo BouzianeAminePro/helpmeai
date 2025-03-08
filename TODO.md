@@ -8,13 +8,16 @@
 - [x] Store user input in sync data storage to ensure persistence even after closing the popup
 - [x] Handle case no models downloaded or selected
 - [x] Add custom tooltip to prompt what needed on what to process, join with my prompting to give only the answer
-- [] Only update the selection not the entire field text content
-    - [x] get the selection for prompt
-    - [] update only the selection on the final response
 - [x] integrate feedback service 
     - [x] sub to some free feedback service
     - [x] redirect link to the showcase integation
-- [] make subbb.me/discord community
+- [x] handle signup/signin
+- [] Only update the selection not the entire field text content
+    - [x] get the selection for prompt
+    - [] update only the selection on the final response
 - [] add support for other's paying ai's out there (openai, claude, ...)
+- [] give possiblity to a user to add a custom button with custom prompt
 - [] make a flag to disable the extension on a page
-- [] Fix the extension icon button
+- [] fix the extension icon button
+- [] make a custom release blog (details with each updates)
+- [] make subbb.me/discord community
