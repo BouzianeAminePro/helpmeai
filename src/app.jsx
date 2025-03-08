@@ -62,7 +62,7 @@ export default function App() {
 
   // Handlers
   async function handleLogin() {
-    chrome.tabs.create({ url: `${API_URL}/auth/signin` });
+    chrome.tabs.create({ url: `${API_URL}/auth/signin?callbackUrl=/extension-auth` });
   }
 
   const clearAll = useCallback(async () => {
