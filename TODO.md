@@ -15,6 +15,7 @@
 - [] Only update the selection not the entire field text content
     - [x] get the selection for prompt
     - [] update only the selection on the final response
+- [] on randmon selection at the content/client show the button to take it to the extension
 - [] add support for other's paying ai's out there (openai, claude, ...)
 - [] give possiblity to a user to add a custom button with custom prompt
 - [] make a flag to disable the extension on a page
