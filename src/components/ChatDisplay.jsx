@@ -8,7 +8,7 @@ export default function ChatDisplay({ message, response, isEmptyMessage, isEmpty
   }
 
   return (
-    <div className="flex flex-col gap-y-3 items-center">
+    <div className='flex flex-col gap-y-3 items-center max-h-[350px] overflow-y-auto my-2'>
       {!isEmptyMessage && (
         <p className="text-sm leading-6 mb-4 bg-slate-600 p-2.5 rounded-2xl w-fit self-end dark:text-white">
           {message}
@@ -21,7 +21,7 @@ export default function ChatDisplay({ message, response, isEmptyMessage, isEmpty
             alt="logo"
             className="w-[40px] h-[40px] dark:invert"
           />
-          <p className="text-sm leading-6 mb-4 overflow-y-scroll h-max-[200px] dark:text-white">
+          <p className="text-sm leading-6 mb-4 dark:text-white">
             {response}
           </p>
         </div>

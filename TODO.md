@@ -12,12 +12,16 @@
     - [x] sub to some free feedback service
     - [x] redirect link to the showcase integation
 - [x] handle signup/signin
+- [x] add support for other's paying ai's out there (openai, claude, ...) (puter)
 - [] Only update the selection not the entire field text content
     - [x] get the selection for prompt
     - [] update only the selection on the final response
-- [] on randmon selection at the content/client show the button to take it to the extension
+    - [] on random selection at the content/client show the button to take it to the extension
 - [] add support for other's paying ai's out there (openai, claude, ...)
+- [] if the generation exceeds the ui, open a sidebar with the entire generation
+    - [] follow on generation auto-scroll
 - [] give possiblity to a user to add a custom button with custom prompt
+- [] keep history
 - [] make a flag to disable the extension on a page
 - [] fix the extension icon button
 - [] make a custom release blog (details with each updates)

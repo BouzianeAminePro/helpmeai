@@ -3,6 +3,7 @@ const ACTIONS = {
     RESPONSE: 'RESPONSE',
     COPY: 'COPY',
     OPEN_EXTENSION: 'OPEN_EXTENSION',
+    CLOSE_EXTENSION: 'CLOSE_EXTENSION',
     GET_AUTH_TOKEN: 'GET_AUTH_TOKEN',
     SET_AUTH_TOKEN: 'SET_AUTH_TOKEN',
     LOGOUT: 'LOGOUT',
@@ -54,10 +55,12 @@ chrome.runtime.onMessage.addListener(async (request, data, callback) => {
                         token: request?.token
                     }
                 );
-            } else {
-                console.error("Login failed");
             }
             await chrome.action.openPopup();
+            callback({ success: true });
+            break;
+        case ACTIONS.CLOSE_EXTENSION:
+            // await chrome.action.clos;
             callback({ success: true });
             break;
         case ACTIONS.GET_AUTH_TOKEN:

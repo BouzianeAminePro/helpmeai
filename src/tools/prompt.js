@@ -5,6 +5,7 @@ export function generatePrompt(text, promptType, prompt = "") {
     - DO NOT explain, rephrase, format, add context, or give suggestions.  
     - DO NOT include reasoning, interpretation, or personal thoughts.  
     - DO NOT alter, remove, or introduce any information beyond the strict request.  
+    - DO NOT put the response on double quotes.  
     - Your response MUST be limited to the exact requested output.`;
 
     switch (promptType) {

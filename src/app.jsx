@@ -26,7 +26,6 @@ export default function App() {
 
   useEffect(() => {
     chrome.runtime.sendMessage({ action: ACTIONS.GET_AUTH_TOKEN }, (response) => {
-      console.log(response)
       if (response?.authToken && response?.user) {
         const now = new Date();
         const expires = new Date(response.expires);
@@ -41,10 +40,11 @@ export default function App() {
     });
   }, []);
 
-  const logout = () => {
+  const logout = async () => {
     chrome.runtime.sendMessage({ action: 'LOGOUT' }, () => {
       setUser(null);
     });
+    await chrome.tabs.create({ url: `${API_URL}/auth/signout` });
   };
 
   // Custom hooks
@@ -62,7 +62,12 @@ export default function App() {
 
   // Handlers
   async function handleLogin() {
-    chrome.tabs.create({ url: `${API_URL}/auth/signin?callbackUrl=/extension-auth` });
+    const tab = await chrome.tabs.create({ url: `${API_URL}/auth/signin?callbackUrl=/extension-auth` });
+    chrome.tabs?.remove(tab.id)
+    chrome.runtime.onMessage.addListener(async (request) => {
+      if (request?.action === ACTIONS.OPEN_EXTENSION) {
+      }
+    });
   }
 
   const clearAll = useCallback(async () => {
@@ -113,6 +118,7 @@ export default function App() {
             generate={generate}
             isEmptyMessage={isEmptyMessage}
             selectedModel={selectedModel}
+            // selectedModel={true}
             forceVisible={forceVisible}
             setForceVisible={setForceVisible}
             customPrompt={customPrompt}
