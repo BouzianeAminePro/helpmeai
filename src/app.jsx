@@ -10,6 +10,7 @@ import ActionButtons from "./components/ActionButtons";
 import UserDisplay from "./components/UserDisplay";
 import { FeedbackIcon } from "./components/ui/svgs/FeedbackIcon";
 import Button from "./components/ui/button";
+import Tooltip from "./components/ui/tooltip";
 
 export default function App() {
   const [forceVisible, setForceVisible] = useState(false);
@@ -22,7 +23,7 @@ export default function App() {
   const [customPrompt, setCustomPrompt] = useSyncStorage('customPrompt');
   const [feedback, setFeedBack] = useSyncStorage('feedback', ONE_MONTH_MS);
 
-  const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
+  const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000";
 
   useEffect(() => {
     chrome.runtime.sendMessage({ action: ACTIONS.GET_AUTH_TOKEN }, (response) => {
@@ -44,7 +45,7 @@ export default function App() {
     chrome.runtime.sendMessage({ action: 'LOGOUT' }, () => {
       setUser(null);
     });
-    await chrome.tabs.create({ url: `${API_URL}/auth/signout` });
+    await chrome.tabs.create({ url: `${API_URL}/api/auth/logout` });
   };
 
   // Custom hooks
@@ -62,7 +63,7 @@ export default function App() {
 
   // Handlers
   async function handleLogin() {
-    const tab = await chrome.tabs.create({ url: `${API_URL}/auth/signin?callbackUrl=/extension-auth` });
+    const tab = await chrome.tabs.create({ url: `${API_URL}/api/auth/signin?callbackUrl=/extension-auth` });
     chrome.tabs?.remove(tab.id)
     chrome.runtime.onMessage.addListener(async (request) => {
       if (request?.action === ACTIONS.OPEN_EXTENSION) {
@@ -143,13 +144,20 @@ export default function App() {
         </div>
       </div>
 
-      <div className="fixed bottom-4 right-4">
+      <div className={`fixed bottom-${user?.email ? 4 : 0.5} right-${user?.email ? 4 : 6}`}>
         <UserDisplay
           user={user}
           onLogout={logout}
           onLogin={handleLogin}
         />
       </div>
+      {user?.email &&
+        <Tooltip text="Credits">
+          <div className="fixed bottom-4 left-4 flex items-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 px-3 py-1 rounded-full text-xs transition-colors duration-200 font-semibold">
+            {Math.ceil(user?.credits / 1000).toFixed(2)} ✨
+          </div>
+        </Tooltip>
+      }
     </div>
   );
 }
